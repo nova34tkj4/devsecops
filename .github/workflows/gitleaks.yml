@@ -1,0 +1,31 @@
+name: Gitleaks Scan
+
+on:
+  push:
+    branches:
+      - main  # Trigger on push to the 'main' branch
+  pull_request:
+    branches:
+      - main  # Trigger on pull requests targeting the 'main' branch
+
+jobs:
+  gitleaks:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the code
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      # Step 2: Run Gitleaks using Docker
+      - name: Run Gitleaks
+        run: |
+          docker pull zricethezav/gitleaks:latest
+          docker run -v $(pwd):/path zricethezav/gitleaks:latest detect --source /path --report-path /path/gitleaks-report.json
+
+      # Step 3: Upload the Gitleaks report as an artifact (optional)
+      - name: Upload Gitleaks Report
+        uses: actions/upload-artifact@v3
+        with:
+          name: gitleaks-report
+          path: gitleaks-report.json
